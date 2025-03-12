@@ -1,0 +1,41 @@
+#!/bin/bash
+
+echo "The current date and time is:                 $(date)"
+
+echo "The current user is:                          $USER"
+cwd="$(pwd)"
+echo "The current directory is:                     $cwd"
+
+if [[ "$cwd" == "$HOME" ]]
+then
+    IN_HOME_DIR="Yes"
+else
+    IN_HOME_DIR="No"
+fi
+echo "The current directory is your home directory? $IN_HOME_DIR"
+echo "---"
+
+current_up_time=$(uptime | cut -d ' ' -f5 | cut -d ',' -f1)
+
+echo "The system has been running for:              $current_up_time"
+echo "---"
+
+current_users=$(uptime | cut -d ' ' -f7)
+current_users2=$(who | wc -l)
+
+if [[ "$current_users" == "$current_users2" ]]
+then
+    echo "The number of users compared by uptime and who are the same"
+else
+    echo "The number of users compared by uptime and who are different"
+fi
+
+echo "---"
+# get what ip is user using
+connected_ip=$(who | grep $USER | cut -d '(' -f2 | cut -d ')' -f1)
+echo "The IP address of the user is:                $connected_ip"
+
+echo "---"
+# get the total number of files in the home directory
+total_files=$(find $HOME -type f | wc -l)
+echo "The total number of files in your home directory and subdirectories is: $total_files"

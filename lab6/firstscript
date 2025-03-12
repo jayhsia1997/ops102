@@ -1,10 +1,10 @@
 #!/bin/bash
 
-echo "The current date and time is:                 $(date)"
+echo "The current date and time is:                                          $(date)"
 
-echo "The current user is:                          $USER"
+echo "The current user is:                                                   $USER"
 cwd="$(pwd)"
-echo "The current directory is:                     $cwd"
+echo "The current directory is:                                              $cwd"
 
 if [[ "$cwd" == "$HOME" ]]
 then
@@ -12,12 +12,12 @@ then
 else
     IN_HOME_DIR="No"
 fi
-echo "The current directory is your home directory? $IN_HOME_DIR"
+echo "The current directory is your home directory?                          $IN_HOME_DIR"
 echo "---"
 
 current_up_time=$(uptime | cut -d ' ' -f5 | cut -d ',' -f1)
 
-echo "The system has been running for:              $current_up_time"
+echo "The system has been running for:                                       $current_up_time"
 echo "---"
 
 current_users=$(uptime | cut -d ' ' -f7)
@@ -33,7 +33,7 @@ fi
 echo "---"
 # get what ip is user using
 connected_ip=$(who | grep $USER | cut -d '(' -f2 | cut -d ')' -f1)
-echo "The IP address of the user is:                $connected_ip"
+echo "The IP address of the user is:                                          $connected_ip"
 
 echo "---"
 # get the total number of files in the home directory

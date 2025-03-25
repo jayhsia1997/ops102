@@ -1,0 +1,95 @@
+#!/bin/bash
+
+echo_color_text() {
+  local text=$1
+  local color=$2
+  echo "$(tput setaf $color)$text$(tput sgr0)"
+}
+
+generate_secret() {
+  secret=$(shuf -i 0-9 -n 4 | tr -d '\n')
+  echo "$secret"
+}
+
+score_guess() {
+  local secret=$1
+  local guess=$2
+  local correct_position=0
+  local correct_digit=0
+  local type_of_positions=(0 0 0 0)  # 0: not checked, 1: correct position, 2: correct digit in incorrect position
+
+  for i in {0..3}; do
+    if [[ ${guess:i:1} == ${secret:i:1} ]]; then
+      correct_position=$((correct_position + 1))
+      type_of_positions[i]=1
+    elif [[ $secret == *${guess:i:1}* ]]; then
+      correct_digit=$((correct_digit + 1))
+      type_of_positions[i]=2
+    fi
+  done
+
+  echo "$correct_position" "$correct_digit" "${type_of_positions[@]}"
+}
+
+play_game() {
+  secret=$(generate_secret)
+  echo "Secret number: $secret"
+  attempts=10
+
+  echo_color_text "A four-digit secret number has been generated. Try to guess it!" 4
+
+  while (( attempts > 0 )); do
+    prompt=$(echo_color_text "Enter your guess: " 4)
+    read -p "$prompt" guess
+
+    if [[ ! $guess =~ ^[0-9]{4}$ ]]; then
+      echo_color_text "Invalid input. Please enter a four-digit number." 3
+      continue
+    fi
+
+    if [[ $(echo "$guess" | grep -o . | sort | uniq -d | wc -l) -ne 0 ]]; then
+      echo_color_text "Each digit must be unique. Try again." 3
+      continue
+    fi
+
+    if [[ $guess == $secret ]]; then
+      echo_color_text "Congratulations! You've guessed the secret number!" 2
+      return
+    fi
+
+    read correct_position correct_digit positions < <(score_guess "$secret" "$guess")
+    echo_color_text "Results:" 4
+    echo_color_text "Correct digits in correct position: $correct_position" 2
+    echo_color_text "Correct digits in incorrect position: $correct_digit" 3
+
+    positions=($positions)
+    echo_text=""
+    index=0
+    for element in "${positions[@]}"; do
+      if [[ $element == 1 ]]; then
+        echo_text+="$(tput setaf 2)${guess:index:1}$(tput sgr0)"
+      elif [[ $element == 2 ]]; then
+        echo_text+="$(tput setaf 3)${guess:index:1}$(tput sgr0)"
+      else
+        echo_text+="$(tput setaf 1)${guess:index:1}$(tput sgr0)"
+      fi
+      index=$((index + 1))
+    done
+    echo "$echo_text"
+
+    attempts=$((attempts - 1))
+    echo_color_text "Attempts remaining: $attempts" 5
+  done
+
+  echo_color_text "Sorry, you've run out of attempts. The secret number was $secret." 1
+}
+
+while :; do
+  play_game
+  read -p "Do you want to play again? (y/n): " play_again
+  if [[ $play_again != "y" ]]; then
+    break
+  fi
+done
+
+echo "Thanks for playing!"

@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Function to get the color code based on file type
+get_color() {
+  case "$1" in
+    *.c) echo "$(tput setaf 2)" ;;  # Green for C source code
+    *.sh) echo "$(tput setaf 3)" ;;  # Yellow for Shell scripts
+    *.txt) echo "$(tput setaf 4)" ;;  # Blue for Text files
+    *.out) echo "$(tput setaf 1)" ;;  # Red for Executable files
+    *.lnk) echo "$(tput setaf 5)" ;;  # Magenta for Symbolic links
+    *) echo "$(tput setaf 7)" ;;  # White for other files
+  esac
+}
+
+# Display legend
+echo "Legend:"
+echo "$(tput setaf 2)C source code$(tput sgr0)"
+echo "$(tput setaf 3)Shell scripts$(tput sgr0)"
+echo "$(tput setaf 4)Text files$(tput sgr0)"
+echo "$(tput setaf 1)Executable files$(tput sgr0)"
+echo "$(tput setaf 5)Symbolic links$(tput sgr0)"
+echo "$(tput setaf 7)Other files$(tput sgr0)"
+echo
+
+total_size=0
+
+# Loop through each argument
+for file in "$@"; do
+  if [[ -e "$file" && -f "$file" ]]; then
+    echo "Argument: $file"
+    # size=$(stat -c%s "$file")
+    # total_size=$((total_size + size))
+    color=$(get_color "$file")
+    echo "${color}${file}: ${size} bytes$(tput sgr0)"
+  else
+    echo "$(tput setaf 1)Error: ${file} does not exist or is not file$(tput sgr0)"
+  fi
+done
+
+echo
+echo "Total size: ${total_size} bytes"
